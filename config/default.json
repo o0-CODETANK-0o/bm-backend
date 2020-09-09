@@ -1,0 +1,3 @@
+{
+  "mongoURI": "mongodb+srv://broom:broom123@broommates.w0wpf.mongodb.net/test?retryWrites=true&w=majority"
+}
