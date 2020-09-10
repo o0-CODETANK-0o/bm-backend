@@ -1,20 +1,39 @@
 const express = require('express');
+const dotenv = require('dotenv');
+const rateLimit = require('express-rate-limit');
+const cors = require('cors');
+const hpp = require('hpp');
+
 const connectDB = require('./config/db');
-const cors = require('cors')
+
+dotenv.config({ path: './config/config.env' });
+
+connectDB();
 
 const app = express();
 
-// Connect Database
-connectDB();
-app.get('/', (req, res) => res.send('API Running'));
+app.use(express.json());
 
-// Init Middleware
-app.use(express.json({ extended: false }));
-app.use(cors())
-// Define Routes
-app.use('/api/flats', require('./routes/api/flats'));
+const rateLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 10,
+});
 
-const PORT = process.env.PORT || 5000;
+app.use(cors());
+
+app.use(rateLimiter);
+app.use(hpp());
+
+app.get("/contact", (req,res)=>{
+  res.send("5000 running")
+})
 
 
-app.listen(PORT, () => console.log(`Server is running on port ${ PORT }`));
+app.use('/contact', require('./routes/contactRoutes'));
+
+const server = app.listen(process.env.PORT || '5000', () => console.log('hello'));
+
+process.on('unhandledRejection', (err, promise) => {
+  console.log(`Error ${err.message}`);
+  server.close(() => process.exit(1));
+});
