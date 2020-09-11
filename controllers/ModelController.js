@@ -6,7 +6,7 @@ const transporter = nodemailer.createTransport(
   sendgridTransport({
     auth: {
       api_key:
-      "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",
+     process.env.SENDGRID_API,
     },
   })
 );
@@ -17,7 +17,7 @@ exports.postContact = (req, res, next) => {
     to: req.body.email,
     from: 'broommates@citromail.hu',
     subject: 'signup success',
-    html: `<h1></h1><h2>REGISTER NOW</h2>`,
+    html: `<h1>Hello ${req.body.name}</h1><h2>You got this email so you can join our awesome Flat</h2>`,
   });
   res.send('Sent...');
 
