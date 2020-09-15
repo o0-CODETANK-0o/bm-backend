@@ -14,6 +14,9 @@ const UserSchema = new Schema({
     type: String,
     require: true
   },
+  species:{
+    type: String
+  },
   date: {
     type: Date,
     default: Date.now
@@ -25,6 +28,10 @@ const UserSchema = new Schema({
   userValidationPoints: {
     type: Number,
     default: 0
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
   },
   tasks: {
     type: Array
