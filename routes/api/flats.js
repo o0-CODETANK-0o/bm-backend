@@ -17,10 +17,10 @@ router.get('/', show_wgs);
 // @access 👉   Public
 
 router.post('/registerwg',[
-  check('name', 'You need to provide a name for the WG')
+  check('flat.name', 'You need to provide a name for the WG')
     .not()
     .isEmpty(),
-  check('email', 'Please include a valid email').isEmail()
+  check('admin.userEmail', 'Please include a valid email').isEmail()
 ], create_wg);
 
 module.exports = router;

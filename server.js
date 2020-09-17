@@ -28,7 +28,7 @@ app.get('/contact', (req, res) => {
 });
 app.use('/contact', require('./routes/contactRoutes'));
 app.use('/registeruser', require('./routes/registerUserRoute'));
-// app.use('/api/flats', require('./routes/api/flats'));
+app.use('/api/flats', require('./routes/api/flats'));
 
 // Start the server
 const PORT = process.env.PORT || 5000;

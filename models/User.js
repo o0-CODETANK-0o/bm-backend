@@ -14,6 +14,9 @@ const UserSchema = new Schema({
     type: String,
     require: true,
   },
+  avatar: {
+    type: String
+  },
   species:{
     type: String
   },
