@@ -16,9 +16,11 @@ postUser = async (flat, userData) => {
   console.log(userData);
 
   const token = crypto.randomBytes(20).toString('hex');
+  
   const newUser = new User
   newUser.userEmail = userData.userEmail;
-  newUser.inviteToken = token;
+  newUser.inviteToken = token 
+  newUser.inviteFlatID=flat._id;
   console.log('mail->',process.env.EMAIL_SENDER)
   // newUser.inviteTokenExpires = Date.now() + 86400000;
   let dbUser = await newUser.save()
@@ -26,7 +28,7 @@ postUser = async (flat, userData) => {
   // await flat.save()
   transporter.sendMail({
     to: userData.userEmail,
-    from: process.env.EMAIL_SENDER,
+    from: 'vagobala@gmail.com',
     subject: 'signup success',
     html: `<h1>Hello ${userData.name}</h1><h2>You got this email so you can join our awesome Flat at :
     <a href="http://localhost:3000/RegisterUser/${token}">here</a></h2>`,

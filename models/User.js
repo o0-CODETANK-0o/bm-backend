@@ -15,10 +15,10 @@ const UserSchema = new Schema({
     require: true,
   },
   avatar: {
-    type: String
+    type: String,
   },
-  species:{
-    type: String
+  species: {
+    type: String,
   },
   date: {
     type: Date,
@@ -34,15 +34,17 @@ const UserSchema = new Schema({
   },
   isAdmin: {
     type: Boolean,
-    default: false
+    default: false,
   },
   tasks: {
     type: Array,
   },
   inviteToken: {
     type: String,
-  }
-
+  },
+  inviteFlatID: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
 });
 
 module.exports = User = mongoose.model('User', UserSchema);
