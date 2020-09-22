@@ -1,5 +1,6 @@
-const Contact = require('../models/ContactModel');
-const User = require('../models/User');
+
+const User = require('../models/User'); 
+const Flat = require('../models/Flat'); 
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
 const crypto = require('crypto');
@@ -24,11 +25,17 @@ postUser = async (flat, userData) => {
   console.log('mail->',process.env.EMAIL_SENDER)
   // newUser.inviteTokenExpires = Date.now() + 86400000;
   let dbUser = await newUser.save()
-  flat.users.push(dbUser._id)
+
+  //Find a task in the WG without a UserID, then update the UserID key of the task with the new user's id
+  flat.users.push(dbUser._id) 
+  const emptyRoom=flat.rooms.find(room=>!room.userId)
+  if(emptyRoom){
+    emptyRoom.userID=dbUser._id
+  }
   // await flat.save()
   transporter.sendMail({
     to: userData.userEmail,
-    from: 'vagobala@gmail.com',
+    from: process.env.EMAIL_SENDER,
     subject: 'signup success',
     html: `<h1>Hello ${userData.name}</h1><h2>You got this email so you can join our awesome Flat at :
     <a href="http://localhost:3000/RegisterUser/${token}">here</a></h2>`,
@@ -75,36 +82,24 @@ module.exports.create_wg = async (req, res) => {
   } = req.body;
 
   try {
-
-    let flat = await Flat.findOne({
-      email
-    });
-
-    // if (flat) {
-    //   console.log('email used ?????')
-    //   return res.status(400).json({
-    //     errors: [{
-    //       msg: 'Email already used'
-    //     }]
-    //   });
-    // }
-
+ 
     let flatName = await Flat.findOne({
       name
     });
 
-    // if (flatName) {
-    //   return res.status(400).json({
-    //     errors: [{
-    //       msg: 'Name is taken. Enter different Name!'
-    //     }]
-    //   });
-    // }
+    if (flatName) {
+      return res.status(400).json({
+        errors: [{
+          msg: 'Name is taken. Enter different Name!'
+        }]
+      });
+    }
 
     let admin = new User(req.body.admin);
     admin.isAdmin = true;
     flat = new Flat(req.body.flat);
-    
+    flat.rooms=req.body.flat.rooms
+    console.log(req.body.flat.rooms)
     admin = await admin.save();
     flat.users = [admin._id];
     flat = await flat.save();
@@ -112,7 +107,7 @@ module.exports.create_wg = async (req, res) => {
     users.forEach(user => postUser(flat, user));
     flat = await flat.save();
 
-    console.log(req.body);
+    
     res.send(flat);
 
   } catch (err) {
@@ -120,4 +115,308 @@ module.exports.create_wg = async (req, res) => {
     res.status(500).send('Server error');
 
   }
+}
+
+
+
+
+module.exports.flatInfo=async(req,res)=>{
+const flatFound=await Flat.findById(req.params.id)
+
+res.send(flatFound)
+}
+
+
+
+
+module.exports.defaultRooms=(req,res)=>{
+
+
+
+  //  roomName: "kitchen",
+     
+  //     tasks: [
+  //       {
+  //         task: "mop the floor",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the cooking station",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "broom/vacuum the floor",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the baking plates and oven",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the fridge inside/outside",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "empty and clean the trash bins",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the sink",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the windows",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the door knobs",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "remove spiderwebs from the ceiling",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     roomName: "bathroom",
+  //     exist: {type: Boolean, default: false},
+  //     tasks: [
+  //       {
+  //         task: "mop the floor",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the mirror",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "broom/vacuum the floor",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the shower/tub",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the toilet",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "empty and clean the trash bins",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the sink",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the windows",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the door knobs",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "change the carpet",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "remove spiderwebs from the ceiling",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       }            
+  //     ]
+  //   },
+  //   {
+  //     roomName: "living-room",
+  //     exist: {type: Boolean, default: false},
+  //     tasks: [
+  //       {
+  //         task: "mop the floor",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the windows",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "broom/vacuum the floor",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the door knobs",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "remove spiderwebs from the ceiling",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "dust all the surfaces",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "vacuum the couch / under the couch",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       }   
+  //     ]
+  //   },
+  //   {
+  //     roomName: "main entrance/corridor",
+  //     exist: {type: Boolean, default: false},
+  //     tasks: [
+  //       {
+  //         task: "mop the floor",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "change the carpet",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "broom/vacuum the floor",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "clean the door knobs",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       },
+  //       {
+  //         task: "remove spiderwebs from the ceiling",
+  //         points: 10,
+  //         isDone: {
+  //           type: Boolean,
+  //           default: false
+  //         }
+  //       }
+  //     ]
 }

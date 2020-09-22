@@ -26,7 +26,7 @@ app.use(hpp());
 app.get('/contact', (req, res) => {
   res.send('5000 running');
 });
-app.use('/contact', require('./routes/contactRoutes'));
+
 app.use('/registeruser', require('./routes/registerUserRoute'));
 app.use('/api/flats', require('./routes/api/flats'));
 
